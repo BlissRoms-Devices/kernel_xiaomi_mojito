@@ -54,11 +54,6 @@ static unsigned long vmpressure_scale_max = 100;
 module_param_named(vmpressure_scale_max, vmpressure_scale_max,
 			ulong, 0644);
 
-/* vmpressure values >= this will be scaled based on allocstalls */
-static unsigned long allocstall_threshold = 70;
-module_param_named(allocstall_threshold, allocstall_threshold,
-			ulong, 0644);
-
 /*
  * When there are too little pages left to scan, vmpressure() may miss the
  * critical pressure as number of pages will be less than "window size".
@@ -164,12 +159,8 @@ out:
 static unsigned long vmpressure_account_stall(unsigned long pressure,
 				unsigned long stall, unsigned long scanned)
 {
-	unsigned long scale;
-
-	if (pressure < allocstall_threshold)
-		return pressure;
-
-	scale = ((vmpressure_scale_max - pressure) * stall) / scanned;
+	unsigned long scale =
+		((vmpressure_scale_max - pressure) * stall) / scanned;
 
 	return pressure + scale;
 }
